@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+<head>
+    <title>Image Viewer</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        img {
+            max-width: 90%;
+            max-height: 80vh;
+            margin: 20px 0;
+        }
+        a {
+            text-decoration: none;
+            color: #569cd6;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .image-count {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #9cdcfe;
+        }
+        .image-info {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #e0e0e0;
+        }
+        h1 {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Viewer</h1>
+        <div class="image-info">
+            <p><strong>Current Image:</strong> {{ images[current_index].path }}</p>
+            <p><a href="/image/{{ images[current_index].path }}" target="_blank">Direct Link to Image</a></p>
+        </div>
+        <div class="nav">
+            <a href="#" id="prevLink">Previous</a>
+            <a href="#" id="nextLink">Next</a>
+        </div>
+        <img id="image" src="/image/{{ images[current_index].path }}" alt="Image" />
+        <div class="image-count">
+            Image {{ current_index + 1 }} of {{ images|length }}
+        </div>
+        <p><a href="{{ request.referrer or url_for('dir_listing') }}">Back to Directory</a></p>
+    </div>
+
+    <script>
+        const images = {{ images|tojson }};
+        let currentIndex = {{ current_index }};
+
+        function updateImage() {
+            const imageElement = document.getElementById('image');
+            const imageInfoElement = document.querySelector('.image-info');
+            const imageCountElement = document.querySelector('.image-count');
+
+            imageElement.src = '/image/' + images[currentIndex].path;
+            imageElement.alt = images[currentIndex].name;
+
+            // Update image info
+            imageInfoElement.innerHTML = `
+                <p><strong>Current Image:</strong> ${images[currentIndex].path}</p>
+                <p><a href="/image/${images[currentIndex].path}" target="_blank">Direct Link to Image</a></p>
+            `;
+
+            // Update image count
+            imageCountElement.innerText = 'Image ' + (currentIndex + 1) + ' of ' + images.length;
+
+            // Optionally, update the browser's URL (uncomment the line below to enable)
+            // history.replaceState(null, '', '/view/' + images[currentIndex].path);
+        }
+
+        function showPreviousImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateImage();
+            }
+        }
+
+        function showNextImage() {
+            if (currentIndex < images.length - 1) {
+                currentIndex++;
+                updateImage();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                showPreviousImage();
+            } else if (event.key === 'ArrowRight') {
+                showNextImage();
+            }
+        });
+
+        document.getElementById('prevLink').addEventListener('click', function(event) {
+            event.preventDefault();
+            showPreviousImage();
+        });
+
+        document.getElementById('nextLink').addEventListener('click', function(event) {
+            event.preventDefault();
+            showNextImage();
+        });
+    </script>
+</body>
+</html>

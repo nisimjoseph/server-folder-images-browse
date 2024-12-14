@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+    <title>Directory Listing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        a {
+            color: #569cd6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .folder {
+            font-weight: bold;
+        }
+        .timestamp {
+            color: gray;
+            font-size: 0.9em;
+        }
+        .image-count {
+            color: #9cdcfe;
+            font-size: 0.9em;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffffff;
+        }
+        .back-link {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Directory Listing</h1>
+        <ul>
+        {% for entry in entries %}
+            <li>
+                {% if entry.is_dir %}
+                    <span class="folder">[Folder]</span>
+                    <a href="/{{ entry.path }}">{{ entry.name }}</a>
+                    {% if entry.image_count %}
+                        <span class="image-count">({{ entry.image_count }} images)</span>
+                    {% endif %}
+                {% else %}
+                    {% if entry.is_image %}
+                        <a href="/view/{{ entry.path }}">{{ entry.name }}</a>
+                    {% else %}
+                        <a href="/{{ entry.path }}">{{ entry.name }}</a>
+                    {% endif %}
+                {% endif %}
+                <span class="timestamp">(Modified: {{ entry.mod_time | datetimeformat }})</span>
+            </li>
+        {% endfor %}
+        </ul>
+        {% if request.path != '/' %}
+        <div class="back-link">
+            <a href="{{ '..' }}">Go Up</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
